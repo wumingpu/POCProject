@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MailSendTesting
@@ -60,15 +61,50 @@ namespace MailSendTesting
             //{
             //}
             //"wuming3019@126.com;tianyao.gu@us.beyondsoft.com;tianyao19840910@163.com"
-            SendMail("wuming3019@126.com");
-            SendMail("tianyao.gu@us.beyondsoft.com");
-            SendMail("tianyao19840910@163.com");
-            SendMail("v-mingpw@microsoft.com");
-            SendMail("v-huicw@microsoft.com");
+            //SendMail("wuming3019@126.com");
+            //SendMail("tianyao.gu@us.beyondsoft.com");
+            //SendMail("tianyao19840910@163.com");
+            //SendMail("v-mingpw@microsoft.com");
+            //SendMail("v-huicw@microsoft.com");
+            //Console.ReadLine();
+
+            ParameterizedThreadStart ts1 = new ParameterizedThreadStart(SendMail);
+            Thread th1 = new Thread(ts1);
+            th1.Start("wuming3019@126.com");
+
+            ParameterizedThreadStart ts2 = new ParameterizedThreadStart(SendMail);
+            Thread th2 = new Thread(ts2);
+            th2.Start("tianyao.gu@us.beyondsoft.com");
+
+            ParameterizedThreadStart ts3 = new ParameterizedThreadStart(SendMail);
+            Thread th3 = new Thread(ts3);
+            th3.Start("tianyao19840910@163.com");
+
+            ParameterizedThreadStart ts4 = new ParameterizedThreadStart(SendMail);
+            Thread th4 = new Thread(ts4);
+            th4.Start("v-mingpw@microsoft.com");
+
+            ParameterizedThreadStart ts5 = new ParameterizedThreadStart(SendMail);
+            Thread th5 = new Thread(ts5);
+            th5.Start("v-huicw@microsoft.com");
+
+            for (int i = 0; i < 5; i++)
+            {
+                ParameterizedThreadStart ts6 = new ParameterizedThreadStart(SendMail);
+                Thread th6 = new Thread(ts6);
+                th6.Start("v-mingpw@microsoft.com");
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                ParameterizedThreadStart ts6 = new ParameterizedThreadStart(SendMail);
+                Thread th6 = new Thread(ts6);
+                th6.Start("tianyao.gu@us.beyondsoft.com");
+            }
+
             Console.ReadLine();
         }
 
-        private static void SendMail(string mailAdress)
+        private static void SendMail(object mailAdress)
         {
             // Command line argument must the the SMTP host.
             //using ()
@@ -86,7 +122,7 @@ namespace MailSendTesting
                "BeyondSoft",
             System.Text.Encoding.UTF8);
             // Set destinations for the e-mail message.
-            MailAddress to = new MailAddress(mailAdress);
+            MailAddress to = new MailAddress(mailAdress.ToString());
             // Specify the message content.
             MailMessage message = new MailMessage(from, to);
             message.Body = "This is a test e-mail message sent by an application. ";
@@ -94,14 +130,16 @@ namespace MailSendTesting
             string someArrows = new string(new char[] { '\u2190', '\u2191', '\u2192', '\u2193' });
             message.Body += Environment.NewLine + someArrows + Environment.NewLine + "Thanks," + Environment.NewLine + "Mingpu Wu";
             message.BodyEncoding = System.Text.Encoding.UTF8;
-            message.Subject = "test Mail From BeyondSoft Athena";
+            message.Subject = "Multi-Thread Mail From BeyondSoft Athena";
             message.SubjectEncoding = System.Text.Encoding.UTF8;
+            message.Priority = System.Net.Mail.MailPriority.High;
             // Set the method that is called back when the send operation ends.
             client.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
             // The userState can be any object that allows your callback 
             // method to identify this send operation.
             // For this example, the userToken is a string constant.
             string userState = "test message1";
+
             client.SendAsync(message, userState);
             Console.WriteLine("Sending message... press c to cancel mail. Press any other key to exit.");
             string answer = Console.ReadLine();
@@ -114,7 +152,7 @@ namespace MailSendTesting
             //}
             // Clean up.
             message.Dispose();
-            Console.WriteLine("Goodbye.");
+            //Console.WriteLine("Goodbye.");
         }
     }
 }
